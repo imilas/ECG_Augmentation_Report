@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage{biblatex} %Imports biblatex package
+\addbibresource{ref.bib} %Import the bibliography file
+\usepackage{titling}
+\usepackage{titlesec}
+
+% \titleformat{\section}[runin]
+%   {\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}[runin]
+  {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+  
+\setlength{\droptitle}{-15em}   % This is your set screw
+\usepackage[utf8]{inputenc}
+\usepackage[hashEnumerators,smartEllipses]{markdown}
+\title{An Exploration of ECG Pre-processing Techniques}
+\author{Amir Salimi \and Ali Naeim Abadi}
+
+
+\begin{document}
+
+\maketitle
+
+% \section{Background }
+
+% Time series are a type of data where the data points are listed chronologically in time. ECG signals contain multiple 1 dimensional time series called channels or leads.  Typically, an ECG signal is a recording of several parts of the cardio vascular system, each sensor recording 1 lead. Typically, ECGs contain 12 leads, and ECG technicians can diagnose heart conditions by looking at the ECG recording of a patient and finding abnormalities in 1 or more of the leads. 
+% The first sentence of an abstract should clearly introduce the topic of the paper so that readers can relate it to other work they are familiar with. However, an analysis of abstracts across a range of fields show that few follow this advice, nor do they take the opportunity to summarize previous work in their second sentence. A central issue is the lack of structure in standard advice on abstract writing, so most authors don’t realize the third sentence should point out the deficiencies of this existing research. To solve this problem, we describe a technique that structures the entire abstract around a set of six sentences, each of which has a specific role, so that by the end of the first four sentences you have introduced the idea fully. This structure then allows you to use the fifth sentence to elaborate a little on the research, explain how it works, and talk about the various ways that you have applied it, for example to teach generations of new graduate students how to write clearly. This technique is helpful because it clarifies your thinking and leads to a final sentence that summarizes why your research matters.
+\begin{abstract}
+Are there any best practices when it comes to pre-processing of Electrocardiogram (ECG) signals for automatic diagnosis of heart disease? 
+State of the art machine learning algorithms have achieved remarkable results by learning from raw 12-lead ECG signals, yet rarely is the pre-processing and augmentation steps for training these models justified or compared to their absence. Discerning such rules is difficult, as different datasets and model architectures may require different pre-processings steps for optimal performance, in addition to the sheer number of methods and parameters which need to be explored. Here, we study the interaction between different machine learning (ML) models, different ECG signal datasets, and several frequently used pre-processing and augmentation techniques for classification of heart disease. We look for reliable, simple to implement techniques which are agnostic to specific model architectures and datasets. Our work can be easily replicated and expanded by those interested in model architectures or signal transformations. We hope that the methods explored here will remain beneficial to future researchers as more architectures and datasets are discovered and made available. 
+
+
+\end{abstract} \hspace{12pt}
+\section{Introduction and Problem Definition} 
+State of the art algorithms in diagnosis of heart disease have achieved remarkable results by learning from raw 12-lead ECG signals~\cite{reyna2021will,reyna4issues}. However, these algorithms generally require tens of thousands of examples and long training times to achieve peak performance~\cite{reyna2021will,reyna4issues,natarajan2020wide}. Such large datasets require thousands of hours of manual recording and labeling and may not be available for less common heart conditions. Several factors can interfere with the recording process and add noise to the ECG. These include noise from activity of muscles unrelated to the cardiovascular system as well as baseline wonder and powerline interference~\cite{sornmo2006electrocardiogram}. It is common for these ECG signals to go through a pre-processing step before to remove unnecessary data from the ECG signal before it is analysed or given to a machine learning algorithm~\cite{gacek2011ecg,sornmo2006electrocardiogram}. An analysis of the top performing submissions the Physionet2020 ECG classification challange shows that many of the teams employed such methods to further process and augment raw ECG files. \\
+
+Here, we define~\textit{pre-processing} as any function which modifies the original signal in order to increase model performance, decrease training times, or training of bigger models without increasing computational demand. Examples of pre-processing functions are~\textit{band-pass filters}, which remove un-necessary frequencies from the signals and~\textit{down-sampling}, which decreases signal resolution but reduces computing requirements.  We define~\textit{augmentation functions} as a subset of pre-processing functions which aim to deal with the issue of limited data, such as adding noise or cutting out parts of data during training times.
+
+While these methods are commonly used by state of the art models, rarely is any justification given for their parameters and the performance of these models with and without pre-processing is not explored. In addition, some of the top performing algorithms apply minimal processing to the signals~\cite{natarajan2020wide,ribeiro2020automatic}. This lack of best practices is understandable as there are a wide variety of choices to be made in the machine learning pipeline. Researchers must account for the pre-processing transformations applied to the functions, 
+
+ECG signals with the goal of training better machine learning algorithms without increasing the data requirements.  
+\section{Datasets}
+We have processed the datasets provided by the Physionet-2021 challenge for our purposes. We will initially focus on the ICBEB-2018 competition dataset and attempt to match the performance of the best participating teams~\cite{liu2018open}. We may use other datasets in the later stages of the project, either for the purpose of creating generative models or for the purpose of comparing our results to other works. 
+
+
+
+\printbibliography
+
+\end{document}
