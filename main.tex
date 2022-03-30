@@ -26,20 +26,70 @@
 % The first sentence of an abstract should clearly introduce the topic of the paper so that readers can relate it to other work they are familiar with. However, an analysis of abstracts across a range of fields show that few follow this advice, nor do they take the opportunity to summarize previous work in their second sentence. A central issue is the lack of structure in standard advice on abstract writing, so most authors don’t realize the third sentence should point out the deficiencies of this existing research. To solve this problem, we describe a technique that structures the entire abstract around a set of six sentences, each of which has a specific role, so that by the end of the first four sentences you have introduced the idea fully. This structure then allows you to use the fifth sentence to elaborate a little on the research, explain how it works, and talk about the various ways that you have applied it, for example to teach generations of new graduate students how to write clearly. This technique is helpful because it clarifies your thinking and leads to a final sentence that summarizes why your research matters.
 \begin{abstract}
 Are there any best practices when it comes to pre-processing of Electrocardiogram (ECG) signals for automatic diagnosis of heart disease? 
-State of the art machine learning algorithms have achieved remarkable results by learning from raw 12-lead ECG signals, yet rarely is the pre-processing and augmentation steps for training these models justified or compared to their absence. Discerning such rules is difficult, as different datasets and model architectures may require different pre-processings steps for optimal performance, in addition to the sheer number of methods and parameters which need to be explored. Here, we study the interaction between different machine learning (ML) models, different ECG signal datasets, and several frequently used pre-processing and augmentation techniques for classification of heart disease. We look for reliable, simple to implement techniques which are agnostic to specific model architectures and datasets. Our work can be easily replicated and expanded by those interested in model architectures or signal transformations. We hope that the methods explored here will remain beneficial to future researchers as more architectures and datasets are discovered and made available. 
+State of the art machine learning algorithms have achieved remarkable results by learning from multi-lead ECG signals, yet rarely is the pre-processing and augmentation decisions for training these models justified or the effect of their absence measured. Understandably, discerning such rules is difficult since different datasets, diseases, and model architectures may require different pre-processings steps for optimal performance; in addition, the sheer number of methods and parameters which need to be explored can be overwhelming. Here, we study the interaction between different machine learning (ML) models, different multi-label ECG datasets, and several commonly used pre-processing and augmentation techniques for classification of heart disease. We look for reliable, simple to implement techniques which are agnostic to specific model architectures, datasets, and diseases. Our work can be easily replicated and expanded by those interested in model architectures or signal transformations. We hope that the methods explored here will remain beneficial to future researchers as more architectures and datasets are discovered and made available. 
 
 
 \end{abstract} \hspace{12pt}
-\section{Introduction and Problem Definition} 
-State of the art algorithms in diagnosis of heart disease have achieved remarkable results by learning from raw 12-lead ECG signals~\cite{reyna2021will,reyna4issues}. However, these algorithms generally require tens of thousands of examples and long training times to achieve peak performance~\cite{reyna2021will,reyna4issues,natarajan2020wide}. Such large datasets require thousands of hours of manual recording and labeling and may not be available for less common heart conditions. Several factors can interfere with the recording process and add noise to the ECG. These include noise from activity of muscles unrelated to the cardiovascular system as well as baseline wonder and powerline interference~\cite{sornmo2006electrocardiogram}. It is common for these ECG signals to go through a pre-processing step before to remove unnecessary data from the ECG signal before it is analysed or given to a machine learning algorithm~\cite{gacek2011ecg,sornmo2006electrocardiogram}. An analysis of the top performing submissions the Physionet2020 ECG classification challange shows that many of the teams employed such methods to further process and augment raw ECG files. \\
+\section{Introduction and Problem Definition}
+Researchers must make many decisions and guesses before deploying machine learning models for classification of heart disease using ECG data. Many of these decisions regarding pre-processing of data, length and amount of data needed, and purpose of model (multi-label vs single label) do no yet have clear answers. Here we combine different models with different ECG datasets and data processing approaches. We seek to either find concrete answers to these problems, or narrow the range of possible options. 
+
+State of the art algorithms in diagnosis of heart disease have achieved remarkable results by learning from raw 12-lead ECG signals~\cite{reyna2021will,reyna4issues}. However, these algorithms generally require tens of thousands of examples and long training times to achieve peak performance~\cite{reyna2021will,reyna4issues,natarajan2020wide}. Such large datasets require thousands of hours of manual recording and labeling and may not be available for less common heart conditions. Several factors can interfere with the recording process and add noise to the ECG. These include noise from activity of muscles unrelated to the cardiovascular system as well as baseline wonder and powerline interference~\cite{sornmo2006electrocardiogram}. It is common for these ECG signals to go through a pre-processing step before to remove unnecessary data from the ECG signal before it is analysed or given to a machine learning algorithm~\cite{gacek2011ecg,sornmo2006electrocardiogram}. An analysis of the top performing submissions the Physionet2020 ECG classification challange shows that many of the teams employed such methods to further process and augment raw ECG files.
 
 Here, we define~\textit{pre-processing} as any function which modifies the original signal in order to increase model performance, decrease training times, or training of bigger models without increasing computational demand. Examples of pre-processing functions are~\textit{band-pass filters}, which remove un-necessary frequencies from the signals and~\textit{down-sampling}, which decreases signal resolution but reduces computing requirements.  We define~\textit{augmentation functions} as a subset of pre-processing functions which aim to deal with the issue of limited data, such as adding noise or cutting out parts of data during training times.
 
-While these methods are commonly used by state of the art models, rarely is any justification given for their parameters and the performance of these models with and without pre-processing is not explored. In addition, some of the top performing algorithms apply minimal processing to the signals~\cite{natarajan2020wide,ribeiro2020automatic}. This lack of best practices is understandable as there are a wide variety of choices to be made in the machine learning pipeline. Researchers must account for the pre-processing transformations applied to the functions, 
+While these methods are commonly used by state of the art models, rarely is any justification given for their parameters and the performance of these models with and without pre-processing is not explored. In addition, some of the top performing algorithms apply minimal processing to the signals~\cite{natarajan2020wide,ribeiro2020automatic}. This lack of best practices is understandable as there are a wide variety of choices to be made in the machine learning pipeline; researchers must account for several factors which may interact with the others in unexpected ways: the pre-processing transformations applied to the data, the model hyper-parameters, the heart disease(s) of interest, and whether the model is classifying single or multiple labels. Such a through analysis of all possible combinations and parameters can be overwhelming and unfeasible for most researchers both from a time and computation persepective. Furthermore, there is no guarantee that a learning pipeline which is optimal for one dataset and/or heart disease to be effective on other datasets or diseases. 
 
-ECG signals with the goal of training better machine learning algorithms without increasing the data requirements.  
+In this work we are looking for general best practices which can be helpful to as many future works as possible. Rather than strictly attempting to set new performance benchmarks, the goal here is to observe the effect of common pre-processing and augmentation functions when applied to different datasets of ECGs containing different heart diseases. We employ different state of the art time-series classification models, and measure the effectiveness of the various combinations in order to see if we can find any general rules towards automatic classification of heart disease.
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|}
+ \hline
+Label & Count \\
+ \hline
+right bundle branch block    &  1857 \\
+ventricular ectopics         &   700 \\
+atrial fibrillation          &  1221 \\
+1st degree av block          &   722 \\
+premature atrial contraction &   616 \\
+sinus rhythm                 &   918 \\
+st depression                &   869 \\
+ \hline
+\textbf{Total} & \textbf{6903}\\
+\hline
+\end{tabular}
+% (394, 368, 6903)
+\caption {CPSC2018 dataset of 6877 ECGs. 368 ECGs have no labels. 394 ECGs have more than 1 label.\\}
+\label{CSPC}
+
+\begin{tabular}{|c|c|}
+ \hline
+Label & Count \\
+ \hline
+left ventricular high voltage &  1295 \\
+atrial fibrillation           &  1780 \\
+t wave abnormal               &  1876 \\
+sinus bradycardia             &  3889 \\
+supraventricular tachycardia  &   587 \\
+sinus rhythm                  &  1826 \\
+sinus tachycardia             &  1568 \\
+nonspecific st t abnormality  &  1158 \\
+ \hline
+\textbf{Total} & \textbf{13979}\\
+\hline
+
+
+\end{tabular}
+
+\caption {Chapman-Shaoxing dataset of 10247 ECGs. We drop labels that appear in less than 5\% of the ECGs. 337 ECGs have no labels. 3334 ECGs have more than 1 label.}
+
+\label{ChapmanShaoxing}
+        % from zhang et al We recommended a low-frequency flter to cut of 0.67Hz or below with zero phase distortion, and ahigh-frequency flter with 50Hz cutof frequency. Using the raw ECG signal is also an option for classifcation scheme.
+
+\end{table}
+
 \section{Datasets}
-We have processed the datasets provided by the Physionet-2021 challenge for our purposes. We will initially focus on the ICBEB-2018 competition dataset and attempt to match the performance of the best participating teams~\cite{liu2018open}. We may use other datasets in the later stages of the project, either for the purpose of creating generative models or for the purpose of comparing our results to other works. 
+We have used two datasets which are part of the larger datasets of labeled ECGs provided by the Physionet-2021 challenge~\cite{reyna2021will,reyna4issues}. We will initially focus on the ICBEB-2018 competition dataset and attempt to match the performance of the best participating team~\cite{liu2018open}. We use the Chapman-Shoaxing dataset~\cite{zheng202012} as our secondary dataset to verify our findings. The breakdown of these datasets and breakdown of their label counts is given in Tables~\ref{CSPC} and ~\ref{ChapmanShaoxing}.
 
 
 
