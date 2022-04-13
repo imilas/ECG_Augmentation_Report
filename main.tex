@@ -4,18 +4,19 @@
 \usepackage{titling}
 \usepackage{titlesec}
 \usepackage{caption}
-
+\usepackage{float}
+\usepackage[caption = false]{subfig}
+\usepackage{graphicx}
 \titleformat{\subsection}[runin]
   {\normalfont\large\bfseries}{\thesubsection}{1em}{}
 % commands
 \DefineBibliographyStrings{english}{%
     andothers = {\em et\addabbrvspace al\adddot}
 }
- 
- 
 \setlength{\droptitle}{-15em}   % This is your set screw
 \usepackage[utf8]{inputenc}
 \usepackage[hashEnumerators,smartEllipses]{markdown}
+\usepackage[inline]{enumitem}
 \title{An Exploration of ECG Pre-processing Techniques}
 \author{Amir Salimi \and Ali Naeim Abadi}
 
@@ -45,7 +46,7 @@ While these methods are commonly used by state of the art models, rarely is any 
 
 In this work we are looking for general best practices which can be helpful to as many future works as possible. Rather than strictly attempting to set new performance benchmarks, the goal here is to observe the effect of common pre-processing and augmentation functions when applied to different datasets of ECGs containing different heart diseases. We employ different state of the art time-series classification models, and measure the effectiveness of the various combinations in order to see if we can find any general rules towards automatic classification of heart disease.
 
-\begin{table}[tpb]
+\begin{table}[htpb]
 \centering
 \begin{tabular}{|c|c|}
  \hline
@@ -100,11 +101,9 @@ We conduct our experiments on two datasets, the~\textbf{CSPC} dataset~\cite{liu2
 We use two models with proven results in state of the art time-series classification tasks: the Inception-Time Network, which is the 1-dimensional application of the Inception-Network~\cite{szegedy2017inception,ismail2020inceptiontime} and MiniRocket, a quick and mostly deterministic feature extractor for time-series~\cite{dempster2021minirocket}. A recent survey of time-series classification methods by Ruiz~\textit{et al.} highlights both of these models as excellent performers in various multi-variable time-series classification benchmarks. In the context of ECG classification, Inception-Time has achieved state of the art performance ECG classification tasks~\cite{Strodthoff2021}. 
 
 
-\section{Pre-Processing And Augmentation}
-\label{sec:processing}
 \begin{table}[tpb]
 \centering
-\begin{tabular}{lll}
+\begin{tabular}{lll}[htbp]
 
 Rank &                                                                 Data preprocessing &                                                                          Data augmentation \\
                                              \\
@@ -117,31 +116,85 @@ Rank &                                                                 Data prep
 \caption{Top performing teams' approaches to ECG pre-processing and augmentation. Subset of the larger survey conducted by Hong~\textit{et al.}~\cite{hong2022practical}}
 \label{tab:hong_top5}
 \end{table}
+
+\section{Pre-Processing And Augmentation}
+\label{sec:processing}
+
 A recent work by Hong~\textit{et al.} highlights the implementation decisions made by the successful submissions to the Physionet2020 ECG classification challenge~\cite{hong2022practical}. These decisions include length of input data, pre-processing and augmentation steps, model architectures, data-imbalance solutions, etc. From this survey, we see that there is a diverse set of decisions made by top performing teams in pre-processing and augmentation of ECG data before machine learning algorithms were applied. We higlight a subset of the decisions made by the top 5 performing teams in Table~\ref{tab:hong_top5}.  This survey does not narrow the range of viable options in pre-processing or augmentation since different teams used different architectures amongst other experiment inconsistencies. 
 
-In this work we implement some of the most common approaches to augmentation and pre-processing as highlighted by Hong~\textit{et al.}~\cite{hong2022practical} and use ablation to observe their effects on different models and datasets. By doing so we'll be able to make more general statements about the effects of these methods on ECG signal classification and whether future researchers may or may not want to incorporate them into their own pipelines. 
+In this work we implement some of the most common approaches to augmentation~\footnote{Due to time limitations, we excluded functions such noise-addition, drift, de-noising, etc. from our final analysis.} and pre-processing as highlighted by Hong~\textit{et al.}~\cite{hong2022practical} and use ablation to observe their effects on different models and datasets. By doing so we'll be able to make more general statements about the effects of these methods on ECG signal classification and whether future researchers may or may not want to incorporate them into their own pipelines. 
 
-% types of experiments
-% un processed, normalized, scaled, bandpassed, shifted, all-together
+The functions we focus on here are \textbf{scaling}, \textbf{normalization}, \textbf{bandpass filtering}, and \textbf{shifting}. We will discuss our implementation of each of these pre-processing functions in the next subsections. These functions are applied sequentially to the ECGs and the resulting datasets are used in a 10-fold cross validation experiment on the two different models and two different datasets that we've discussed above. 
+
+\begin{figure}[htbp]
+\centering
+  \makebox[\textwidth]{
+    \includegraphics[width=0.95\paperwidth]{images/raw.pdf}
+  }
+  \caption{raw ECG without any processing}\label{fig:raw}
+  
+  \makebox[\textwidth]{
+    \includegraphics[width=0.95\paperwidth]{images/sc.pdf}
+  }
+  \caption{Scaled ECG with factor of 0.5.}\label{fig:sc}
+  
+  \makebox[\textwidth]{
+    \includegraphics[width=0.95\paperwidth]{images/sc-n.pdf}
+  }
+  \caption{Scaled and normalized ECG}\label{fig:sc_n}
+
+  \makebox[\textwidth]{
+    \includegraphics[width=0.95\paperwidth]{images/sc-n-bp.pdf}
+  }
+  \caption{Scaled, normalized and filtered ECG}\label{fig:sc_n_bp}
+
+\makebox[\textwidth]{
+    \includegraphics[width=0.95\paperwidth]{images/sc-n-bp-sh.pdf}
+  }
+  \caption{Scaled, normalized, filtered and shifted ECG}\label{fig:sc_n_bp_sh}
+%   \vspace{-25pt}
+\end{figure}
+
+
 \subsection{Normalization}
 \subsection{Scaling}
 \subsection{BandPass}
 \subsection{Shifting}
 
-\begin{table}[tpb]
+\begin{figure}[htbp]
 \centering
-\begin{tabular}{|l|l|l|l|}
-\hline
-Function      & Type         & Example Usages & Notes \\ \hline
-Normalization & Pre-Process  &                &       \\ \hline
-Scaling       & Pre-Process  &                &       \\ \hline
-BandPass      & Pre-Process  &                &       \\ \hline
-Shifting      & Augmentation &                &       \\ \hline
+  \makebox[\textwidth]{
+    \includegraphics[width=0.75\paperwidth]{images/pipeline.pdf}
+    
+  }
+  \caption{We apply zero or more functions to ECGs before classification is performed.}\label{fig:approach}
+\end{figure}
 
-\end{tabular}
-\caption{A list of processing and augmentation functions used. }
-\label{tab:processing_funcs}
-\end{table}
+% \begin{table}[tpb]
+% \centering
+% \begin{tabular}{|l|l|l|l|}
+% \hline
+% Function      & Type         & Example Usages & Notes \\ \hline
+% Normalization & Pre-Process  &                &       \\ \hline
+% Scaling       & Pre-Process  &                &       \\ \hline
+% BandPass      & Pre-Process  &                &       \\ \hline
+% Shifting      & Augmentation &                &       \\ \hline
+
+% \end{tabular}
+% \caption{A list of processing and augmentation functions used. }
+% \label{tab:processing_funcs}
+% \end{table}
+\section{Experiment Setup}
+Since we are using 4 pre-processing functions, we get 5 different experiment variations (or scenrios) for each dataset and model combination. The scenarios are \begin{enumerate}
+  \item Raw: No functions are applied to the ECGs.
+  \item SC: ECGs are scaled (by factor of 0.5). In such a case, the sampling rate of 500Hz will drop to 250Hz. This also means that our data size is halved and much smaller model parameters space is needed.
+  \item SC + N: ECGs are scaled and then normalized.
+  \item SC + N + BP: ECGs are scaled, normalized, and a bandpass function is applied. Bandpass functions can only be applied to normalized ECGs.
+  \item SC + N + BP + SH: ECGs are scaled, normalized, bandpassed, and finally randomly shifted during training. During testing ECGs are not shifted. 
+\end{enumerate}
+There are 4 possible combinations of models and datasets (we have 2 datsets and 2 models). For each of these combinations, we perform a 10-fold cross validation where 8 of the folds are used for training, 1 for validation of model (and saving the best one) and 1 for testing. Each fold is trained for 300 epochs maximum (this number seemed more than adequate for the models reach peak performance during our preliminary tests). For each 10-fold cross validation, we have 5 scenario to train, validate and test on. This means that for each combination, there are 50 training cycles, or 1500 epochs. 
+
+Using Tesla V100 GPUs, each epoch can take somewhere between 30 seconds to 1 minute. The Raw inception model on CSPC data required around 20 GBs of Vram, but models working with scaled data took around 10 GBs. Minirocket were far smaller and typically required less than 5GBs of Vram. This type of experimentation is costly, time consuming, and not possible without access to several high-performing GPUs. The high computational costs may be a primary reason why such surveys on time-series data are not done often.
 
 \section{ICBEB DataSet}
 % do i cite this? results are bad but more recent: https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-021-01546-2
@@ -185,8 +238,7 @@ samples avg                  &                      0.834668 &                  
 \label{tab:inception_cspc}
 \end{table}
 \subsection{MiniRocket}
-\begin{figure}[!htbp]
-
+\begin{figure}[htbp]
   \makebox[\textwidth]{
     \includegraphics[width=\paperwidth]{images/mini_cpsc.pdf}
     
@@ -194,9 +246,23 @@ samples avg                  &                      0.834668 &                  
   \caption{Mini CPSC}\label{fig:mini_cpsc}
 \end{figure}
 \section{Chapman-Shaoxing DataSet}
-\subsection{InceptionTime}
-\subsection{MiniRocket}
 
+\subsection{InceptionTime}
+\begin{figure}[htbp]
+  \makebox[\textwidth]{
+    \includegraphics[width=\paperwidth]{images/inception_chapman.pdf}
+    
+  }
+  \caption{Inception Chapman}\label{fig:inception_chapman}
+\end{figure}
+\subsection{MiniRocket}
+\begin{figure}[htbp]
+  \makebox[\textwidth]{
+    \includegraphics[width=\paperwidth]{images/minirocket_chapman.pdf}
+    
+  }
+  \caption{Mini Chapman}\label{fig:mini_chapman}
+\end{figure}
 \section{Conclusion}
 \printbibliography
 

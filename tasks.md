@@ -21,3 +21,11 @@
 - [ ] Deep learning Explainability [Ali]
 - [ ] Presentation Preparation[Amir and Ali]
 - [ ] Project report [Amir and Ali]
+- 
+
+
+# To do
+- make diagram of pipeline
+- write processing functions description
+- compare to competition winner
+- add figures and tables for last two datasets
