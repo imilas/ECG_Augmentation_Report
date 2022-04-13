@@ -47,6 +47,7 @@ While these methods are commonly used by state of the art models, rarely is any 
 In this work we are looking for general best practices which can be helpful to as many future works as possible. Rather than strictly attempting to set new performance benchmarks, the goal here is to observe the effect of common pre-processing and augmentation functions when applied to different datasets of ECGs containing different heart diseases. We employ different state of the art time-series classification models, and measure the effectiveness of the various combinations in order to see if we can find any general rules towards automatic classification of heart disease.
 
 \begin{table}[htpb]
+\parbox{.45\linewidth}{
 \centering
 \begin{tabular}{|c|c|}
  \hline
@@ -65,8 +66,10 @@ st depression                &   869 \\
 \end{tabular}
 % (394, 368, 6903)
 \caption {\textbf{CPSC2018} dataset of 6877 ECGs. 368 ECGs have no labels. 394 ECGs have more than 1 label.\\}
-\label{tab:CSPC}
+\label{tab:CPSC}
+}
 
+\parbox{.45\linewidth}{
 \begin{tabular}{|c|c|}
  \hline
 Label & Count \\
@@ -88,34 +91,34 @@ nonspecific st t abnormality  &  1158 \\
 
 \caption {\textbf{Chapman-Shaoxing} dataset of 10247 ECGs. We drop labels that appear in less than 5\% of the ECGs. 337 ECGs have no labels. 3334 ECGs have more than 1 label.}
 \label{tab:ChapmanShaoxing}
-        % from zhang et al We recommended a low-frequency flter to cut of 0.67Hz or below with zero phase distortion, and ahigh-frequency flter with 50Hz cutof frequency. Using the raw ECG signal is also an option for classifcation scheme.
+}
 
 \end{table}
 
 \section{Datasets}
 \label{datasets}
-We conduct our experiments on two datasets, the~\textbf{CSPC} dataset~\cite{liu2018open} and the \textbf{Chapman-Shaoxing} dataset~\cite{zheng202012}. Both of these datasets have been released as part of the 8 datasets of labeled 12 lead ECGs provided by the Physionet\-2021 challenge~\cite{reyna2021will,reyna4issues}. We will initially focus on the CSPC datset, released as part of the ICBEB-2018 competition~\cite{liu2018open} and implement a model which can match the results of the competition winner before moving on to measuring pre-processing effects. We use the Chapman-Shaoxing dataset~\cite{zheng202012} as our secondary dataset to verify our findings. The breakdown of these datasets and their label counts is given in Tables~\ref{tab:CSPC} and ~\ref{tab:ChapmanShaoxing}.
+We conduct our experiments on two datasets, the~\textbf{CPSC} dataset~\cite{liu2018open} and the \textbf{Chapman-Shaoxing} dataset~\cite{zheng202012}. Both of these datasets have been released as part of the 8 datasets of labeled 12 lead ECGs provided by the Physionet\-2021 challenge~\cite{reyna2021will,reyna4issues}. We will initially focus on the CPSC datset, released as part of the CPSC-2018 competition~\cite{liu2018open} and implement a model which can match the results of the competition winner before moving on to measuring pre-processing effects. We use the Chapman-Shaoxing dataset~\cite{zheng202012} as our secondary dataset to verify our findings. The breakdown of these datasets and their label counts is given in Tables~\ref{tab:CPSC} and ~\ref{tab:ChapmanShaoxing}.
 
 \section{Models}
 \label{sec:models}
 We use two models with proven results in state of the art time-series classification tasks: the Inception-Time Network, which is the 1-dimensional application of the Inception-Network~\cite{szegedy2017inception,ismail2020inceptiontime} and MiniRocket, a quick and mostly deterministic feature extractor for time-series~\cite{dempster2021minirocket}. A recent survey of time-series classification methods by Ruiz~\textit{et al.} highlights both of these models as excellent performers in various multi-variable time-series classification benchmarks. In the context of ECG classification, Inception-Time has achieved state of the art performance ECG classification tasks~\cite{Strodthoff2021}. 
 
 
-\begin{table}[tpb]
-\centering
-\begin{tabular}{lll}[htbp]
+% \begin{table}[tpb]
+% \centering
+% \begin{tabular}{lll}[htbp]
 
-Rank &                                                                 Data preprocessing &                                                                          Data augmentation \\
-                                             \\
-1    &  500Hz;\ Bandwidth 3 - 45 Hz; Value -1 - 1; Window size 15s 0-padding &                                                                                         No \\
-2    &                257 Hz; Value -1 - 1; Window size 4096(16s) 0-padding &                                                                                         No \\
-3    &   500Hz; Window size 30s 0-padding; Exclude 4 leads; Wavelet denoise &                                                                  With external data: Hefei \\
-4    &                     500Hz; Value -1 - 1; Window size 10240(20.48 s)  &                                                                        Add noise and drift \\
-5    &                                              250Hz; Value normalized &  Add or filter frequency components; Substitute, shuffle, invert, filt and scale lead data \\
-\end{tabular}
-\caption{Top performing teams' approaches to ECG pre-processing and augmentation. Subset of the larger survey conducted by Hong~\textit{et al.}~\cite{hong2022practical}}
-\label{tab:hong_top5}
-\end{table}
+% Rank &                                                                 Data preprocessing &                                                                          Data augmentation \\
+%                                              \\
+% 1    &  500Hz;\ Bandwidth 3 - 45 Hz; Value -1 - 1; Window size 15s 0-padding &                                                                                         No \\
+% 2    &                257 Hz; Value -1 - 1; Window size 4096(16s) 0-padding &                                                                                         No \\
+% 3    &   500Hz; Window size 30s 0-padding; Exclude 4 leads; Wavelet denoise &                                                                  With external data: Hefei \\
+% 4    &                     500Hz; Value -1 - 1; Window size 10240(20.48 s)  &                                                                        Add noise and drift \\
+% 5    &                                              250Hz; Value normalized &  Add or filter frequency components; Substitute, shuffle, invert, filt and scale lead data \\
+% \end{tabular}
+% \caption{Top performing teams' approaches to ECG pre-processing and augmentation. Subset of the larger survey conducted by Hong~\textit{et al.}~\cite{hong2022practical}}
+% \label{tab:hong_top5}
+% \end{table}
 
 \section{Pre-Processing And Augmentation}
 \label{sec:processing}
@@ -156,19 +159,27 @@ The functions we focus on here are \textbf{scaling}, \textbf{normalization}, \te
 \end{figure}
 
 
-\subsection{Normalization}
 \subsection{Scaling}
-\subsection{BandPass}
-\subsection{Shifting}
 
-\begin{figure}[htbp]
-\centering
-  \makebox[\textwidth]{
-    \includegraphics[width=0.75\paperwidth]{images/pipeline.pdf}
+The Scaling function uses upsampling or downsampling to resize an ECG. Here we are only interested in downsampling, as upsampling cannot provide extra information and likely would only increase computation costs. With downsampling, the dimensionality of the data is reduced, leading to faster training times, smaller models, and possibly prevent over-fitting. However, at a lower resolution, we may lose data that is crucial for detection of some diseases. We use the TorchAudio library which enables the re-sampling of time-series using GPU~\cite{yang2021torchaudio}. This effect of this process can be seen in Figure~\ref{fig:sc}.
+
+\subsection{Normalization}
+We normalize the data by dividing each lead by the maximum value in the \textit{entire} ECG. Normalization has been show to produce better results in image classification~\textbf{>>cite<<}. This effect of this process can be seen in Figure~\ref{fig:sc_n}.
+\subsection{BandPass Filtering}
+        % from zhang et al We recommended a low-frequency flter to cut of 0.67Hz or below with zero phase distortion, and ahigh-frequency flter with 50Hz cutof frequency. Using the raw ECG signal is also an option for classifcation scheme.
+
+We can use a digital bandpass filter to remove (or greatly reduce) the frequencies which are higher or lower than a certain cut offs~\cite{lyons1997understanding}. A bandpass filter is a combination of a low-pass filter and a high-pass filter to only keep frequencies between two thresholds. A variety of frequncy ranges have been suggested for ECG classification. For example, Zhen~\textit{et. al} recommend a filter applied to 0.67Hz and below, and a filter to remove frequncies above 50Hz~\cite{zheng202012}, while Natarajan~\textit{et al.} use the bandwith of 3-45 Hz~\cite{natarajan2020wide}. In this work we remove frequencies outside the bandwith of 1-50 Hz, although we recognize that optimal filtering for ECG classification could vary widely depending on the disease that is being classified. For this transformation we also make use of the TorchAudio library to use GPUs for faster filtering of signals~\cite{yang2021torchaudio}. This effect of this process can be seen in Figure~\ref{fig:sc_n_bp}.
+\subsection{Shifting}
+ECGs are recordings of reoccurring heart beats. Several beats are recorded, and their exact position in the time-series is irrelevant to the technicians. We take advantage of this fact for data augmentation, and randomly shift the beats by moving the entire time series to the right by a certain number. The parts of the signal which fall outside of the window size are appended to the left side of the ECG signal. This effect of this function is seen in Figure~\ref{fig:sc_n_bp_sh}.
+
+% \begin{figure}[htbp]
+% \centering
+%   \makebox[\textwidth]{
+%     \includegraphics[width=0.75\paperwidth]{images/pipeline.pdf}
     
-  }
-  \caption{We apply zero or more functions to ECGs before classification is performed.}\label{fig:approach}
-\end{figure}
+%   }
+%   \caption{We apply zero or more functions to ECGs before classification is performed.}\label{fig:approach}
+% \end{figure}
 
 % \begin{table}[tpb]
 % \centering
@@ -194,54 +205,52 @@ Since we are using 4 pre-processing functions, we get 5 different experiment var
 \end{enumerate}
 There are 4 possible combinations of models and datasets (we have 2 datsets and 2 models). For each of these combinations, we perform a 10-fold cross validation where 8 of the folds are used for training, 1 for validation of model (and saving the best one) and 1 for testing. Each fold is trained for 300 epochs maximum (this number seemed more than adequate for the models reach peak performance during our preliminary tests). For each 10-fold cross validation, we have 5 scenario to train, validate and test on. This means that for each combination, there are 50 training cycles, or 1500 epochs. 
 
-Using Tesla V100 GPUs, each epoch can take somewhere between 30 seconds to 1 minute. The Raw inception model on CSPC data required around 20 GBs of Vram, but models working with scaled data took around 10 GBs. Minirocket were far smaller and typically required less than 5GBs of Vram. This type of experimentation is costly, time consuming, and not possible without access to several high-performing GPUs. The high computational costs may be a primary reason why such surveys on time-series data are not done often.
+Using Tesla V100 GPUs, each epoch can take somewhere between 30 seconds to 1 minute. The Raw inception model on CPSC data required around 20 GBs of Vram, but models working with scaled data took around 10 GBs. Minirocket were far smaller and typically required less than 5GBs of Vram. This type of experimentation is costly, time consuming, and not possible without access to several high-performing GPUs. The high computational costs may be a primary reason why such surveys on time-series data are not done often.
 
-\section{ICBEB DataSet}
+\section{CPSC DataSet}
 % do i cite this? results are bad but more recent: https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-021-01546-2
-The ICBEB is an open access  released in 2018 as part a multi-label ECG classification competition~\cite{liu2018open}. ECG signal duration in this dataset is between 6 and 60 seconds, with an average duration of 15.79 seconds. The data the 12 leads were recorded at the frequency of 500 Hz. The entries to this competition trained on 6877 ECG recordings and were evaluated on a hidden test set of 2954 ECGs. To ensure our approach is competitive with the state of the art, we compare our results to the competition winner's reported F1 measurements after a 10 fold cross-validation on the training set where 80\% of the data was used for training and 10\% for validation, and 10\% for testing~\cite{chen2020detection}. Chen~\textit{et al.} reported the results for their best model, as well as an ensemble model of 130 models with various hyper-parameters.
+The CPSC is an open access  released in 2018 as part a multi-label ECG classification competition~\cite{liu2018open}. ECG signal duration in this dataset is between 6 and 60 seconds, with an average duration of 15.79 seconds. The data the 12 leads were recorded at the frequency of 500 Hz. The entries to this competition trained on 6877 ECG recordings and were evaluated on a hidden test set of 2954 ECGs. To ensure our approach is competitive with the state of the art, we compare our results to the competition winner's reported F1 measurements after a 10 fold cross-validation on the training set where 80\% of the data was used for training and 10\% for validation, and 10\% for testing~\cite{chen2020detection}. Chen~\textit{et al.} reported the results for their best model, as well as an ensemble model of 130 models with various hyper-parameters.
 We also compare our results to the more recent work by Strodthoff~\textit{et al.}~\cite{Strodthoff2021} who also used a 8/1/1 split for training, validation, and testing but only reported the average AUCs for their models. 
 
 \subsection{InceptionTime}
-\begin{figure}[!htbp]
 
+\begin{figure}[!htbp]
   \makebox[\textwidth]{
     \includegraphics[width=\paperwidth]{images/inception_cpsc.pdf}
-    
   }
   \caption{inception CPSC}\label{fig:inception_cpsc}
 \end{figure}
 
-\begin{table}[tpb]
-\centering
-\begin{tabular}{|cccccc|}
-\hline
+% \begin{table}[tpb]
+% \centering
+% \begin{tabular}{|cccccc|}
+% \hline
 
- &  raw &  sc &  sc-n &  sc-n-bp &  sc-n-bp-sh \\
+%  &  raw &  sc &  sc-n &  sc-n-bp &  sc-n-bp-sh \\
 
-1st degree av block          &                      0.860390 &                     0.858305 &                       0.861448 &                          0.860317 &                             0.867950 \\
-atrial fibrillation          &                      0.947803 &                     0.941423 &                       0.942913 &                          0.945148 &                             0.943174 \\
-left bundle branch block     &                      0.902381 &                     0.904762 &                       0.908907 &                          0.911840 &                             0.871795 \\
-premature atrial contraction &                      0.728972 &                     0.759011 &                       0.751311 &                          0.759480 &                             0.732357 \\
-right bundle branch block    &                      0.943734 &                     0.946015 &                       0.947505 &                          0.946151 &                             0.944941 \\
-sinus rhythm                 &                      0.795646 &                     0.803255 &                       0.810050 &                          0.806625 &                             0.790428 \\
-st depression                &                      0.824176 &                     0.825177 &                       0.810837 &                          0.810050 &                             0.782371 \\
-st elevation                 &                      0.506410 &                     0.459064 &                       0.500000 &                          0.525063 &                             0.513158 \\
-ventricular ectopics         &                      0.813246 &                     0.854540 &                       0.830926 &                          0.845929 &                             0.824623 \\
-micro avg                    &                      0.861125 &                     0.865649 &                       0.861403 &                          0.863821 &                             0.857628 \\
-macro avg                    &                      0.814593 &                     0.816061 &                       0.815315 &                          0.824211 &                             0.812525 \\
-weighted avg                 &                      0.858318 &                     0.862641 &                       0.858093 &                          0.861098 &                             0.855021 \\
-samples avg                  &                      0.834668 &                     0.844614 &                       0.839034 &                          0.838185 &                             0.834182 \\
+% 1st degree av block          &                      0.860390 &                     0.858305 &                       0.861448 &                          0.860317 &                             0.867950 \\
+% atrial fibrillation          &                      0.947803 &                     0.941423 &                       0.942913 &                          0.945148 &                             0.943174 \\
+% left bundle branch block     &                      0.902381 &                     0.904762 &                       0.908907 &                          0.911840 &                             0.871795 \\
+% premature atrial contraction &                      0.728972 &                     0.759011 &                       0.751311 &                          0.759480 &                             0.732357 \\
+% right bundle branch block    &                      0.943734 &                     0.946015 &                       0.947505 &                          0.946151 &                             0.944941 \\
+% sinus rhythm                 &                      0.795646 &                     0.803255 &                       0.810050 &                          0.806625 &                             0.790428 \\
+% st depression                &                      0.824176 &                     0.825177 &                       0.810837 &                          0.810050 &                             0.782371 \\
+% st elevation                 &                      0.506410 &                     0.459064 &                       0.500000 &                          0.525063 &                             0.513158 \\
+% ventricular ectopics         &                      0.813246 &                     0.854540 &                       0.830926 &                          0.845929 &                             0.824623 \\
+% micro avg                    &                      0.861125 &                     0.865649 &                       0.861403 &                          0.863821 &                             0.857628 \\
+% macro avg                    &                      0.814593 &                     0.816061 &                       0.815315 &                          0.824211 &                             0.812525 \\
+% weighted avg                 &                      0.858318 &                     0.862641 &                       0.858093 &                          0.861098 &                             0.855021 \\
+% samples avg                  &                      0.834668 &                     0.844614 &                       0.839034 &                          0.838185 &                             0.834182 \\
 
-\hline
-\end{tabular}
-\caption{Median of 10 fold cross-validation for inception model on the CSPC dataset}
-\label{tab:inception_cspc}
-\end{table}
+% \hline
+% \end{tabular}
+% \caption{Median of 10 fold cross-validation for inception model on the CPSC dataset}
+% \label{tab:inception_CPSC}
+% \end{table}
 \subsection{MiniRocket}
 \begin{figure}[htbp]
   \makebox[\textwidth]{
     \includegraphics[width=\paperwidth]{images/mini_cpsc.pdf}
-    
   }
   \caption{Mini CPSC}\label{fig:mini_cpsc}
 \end{figure}

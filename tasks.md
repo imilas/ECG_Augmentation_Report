@@ -29,3 +29,7 @@
 - write processing functions description
 - compare to competition winner
 - add figures and tables for last two datasets
+- 
+# minor:
+- make data fit (could table 1 and 2 be next to each other?)
+- Find citation for normalization being useful
