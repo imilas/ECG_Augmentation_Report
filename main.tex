@@ -1,7 +1,9 @@
 \documentclass{article}
 \usepackage{biblatex} %Imports biblatex package
+\usepackage[a4paper, total={6in, 8in}]{geometry}
 \addbibresource{ref.bib} %Import the bibliography file
 \usepackage{titling}
+\usepackage{ amssymb }
 \usepackage{titlesec}
 \usepackage{caption}
 \usepackage{float}
@@ -36,18 +38,86 @@ State of the art machine learning algorithms have achieved remarkable results by
 
 \end{abstract} \hspace{12pt}
 \section{Introduction and Problem Definition}
-Researchers must make many decisions and guesses before deploying machine learning models for classification of heart disease using ECG data. Many of these decisions regarding pre-processing of data, length and amount of data needed, and purpose of model (multi-label vs single label) do no yet have clear answers. Here we combine different models with different ECG datasets and data processing approaches. We seek to either find concrete answers to these problems, or narrow the range of possible options. 
+Many decisions and guesses must be made before deploying machine learning models for classification of heart disease using ECG data. Many of the decisions regarding pre-processing of data, length and amount of data needed, and purpose of model (multi-label vs single label) do no have clear answers. Here we combine different models with different ECG datasets and data processing approaches. We seek to either find concrete answers to these problems, or narrow the range of possible options. 
 
-State of the art algorithms in diagnosis of heart disease have achieved remarkable results by learning from raw 12-lead ECG signals~\cite{reyna2021will,reyna4issues}. However, these algorithms generally require tens of thousands of examples and long training times to achieve peak performance~\cite{reyna2021will,reyna4issues,natarajan2020wide}. Such large datasets require thousands of hours of manual recording and labeling and may not be available for less common heart conditions. Several factors can interfere with the recording process and add noise to the ECG. These include noise from activity of muscles unrelated to the cardiovascular system as well as baseline wonder and powerline interference~\cite{sornmo2006electrocardiogram}. It is common for these ECG signals to go through a pre-processing step before to remove unnecessary data from the ECG signal before it is analysed or given to a machine learning algorithm~\cite{gacek2011ecg,sornmo2006electrocardiogram}. An analysis of the top performing submissions the Physionet2020 ECG classification challange shows that many of the teams employed such methods to further process and augment raw ECG files.
+State of the art algorithms in diagnosis of heart disease have achieved remarkable results by learning from raw 12-lead ECG signals~\cite{reyna2021will,reyna4issues}. However, these algorithms generally require tens of thousands of examples and long training times to achieve peak performance~\cite{reyna2021will,reyna4issues,natarajan2020wide}. Such large datasets require thousands of hours of manual recording and labeling and may not be available for less common heart conditions. Several factors can interfere with the recording process and add noise to the ECG. These include noise from activity of muscles unrelated to the cardiovascular system as well as baseline wonder and powerline interference~\cite{sornmo2006electrocardiogram}. It is common for these ECG signals to go through a pre-processing step to remove unnecessary data from the ECG signal before it is analyzed or given to a machine learning algorithm~\cite{gacek2011ecg,sornmo2006electrocardiogram}. An analysis of the top performing submissions to the Physionet2020 ECG classification challange shows that many of the teams employed such methods before deploying machine learning algorithms on ECG signals.
 
-Here, we define~\textit{pre-processing} as any function which modifies the original signal in order to increase model performance, decrease training times, or training of bigger models without increasing computational demand. Examples of pre-processing functions are~\textit{band-pass filters}, which remove un-necessary frequencies from the signals and~\textit{down-sampling}, which decreases signal resolution but reduces computing requirements.  We define~\textit{augmentation functions} as a subset of pre-processing functions which aim to deal with the issue of limited data, such as adding noise or cutting out parts of data during training times.
+Here, we define~\textit{pre-processing} as any function which modifies the original signal in order to increase model performance, decrease training times, or enable training of bigger models without increasing computational demand. Examples of pre-processing functions are~\textit{band-pass filters}, which remove unnecessary frequencies from the signals and~\textit{down-sampling}, which decreases signal resolution but reduces computing requirements.  We define~\textit{augmentation functions} as a subset of pre-processing functions which aim to deal with the issue of limited data, such as adding noise or cutting out parts of data during training times.
 
-While these methods are commonly used by state of the art models, rarely is any justification given for their parameters and the performance of these models with and without pre-processing is not explored. In addition, some of the top performing algorithms apply minimal processing to the signals~\cite{natarajan2020wide,ribeiro2020automatic}. This lack of best practices is understandable as there are a wide variety of choices to be made in the machine learning pipeline; researchers must account for several factors which may interact with the others in unexpected ways: the pre-processing transformations applied to the data, the model hyper-parameters, the heart disease(s) of interest, and whether the model is classifying single or multiple labels. Such a through analysis of all possible combinations and parameters can be overwhelming and unfeasible for most researchers both from a time and computation persepective. Furthermore, there is no guarantee that a learning pipeline which is optimal for one dataset and/or heart disease to be effective on other datasets or diseases. 
+
+
+While these methods are commonly used by state of the art models, rarely is any justification given for their parameters and the performance of these models with and without pre-processing is not explored. In addition, some of the top performing algorithms apply minimal processing to the signals~\cite{natarajan2020wide,ribeiro2020automatic}. This lack of best practices is understandable as there are a wide variety of choices to be made in the machine learning pipeline; researchers must account for several factors which may interact with the others in unexpected ways: the pre-processing transformations applied to the data, the model hyper-parameters, the cardio-vascular disease(s) of interest, and whether the model is classifying single or multiple labels. Such a thorough analysis of all possible combinations and parameters can be overwhelming and unfeasible for most researchers both from a time and computation perspective. Furthermore, there is no guarantee that a learning pipeline which is optimal for one dataset and/or disease to be effective on other datasets or diseases. 
 
 In this work we are looking for general best practices which can be helpful to as many future works as possible. Rather than strictly attempting to set new performance benchmarks, the goal here is to observe the effect of common pre-processing and augmentation functions when applied to different datasets of ECGs containing different heart diseases. We employ different state of the art time-series classification models, and measure the effectiveness of the various combinations in order to see if we can find any general rules towards automatic classification of heart disease.
 
-\begin{table}[htpb]
-\parbox{.45\linewidth}{
+
+
+\section{Datasets}
+\label{datasets}
+We conduct our experiments on two datasets, the~\textbf{CPSC} dataset~\cite{liu2018open} and the \textbf{Chapman-Shaoxing} dataset~\cite{zheng202012}. Both of these datasets have been released as part of the 8 datasets of labeled 12 lead ECGs provided by the Physionet\-2021 challenge~\cite{reyna2021will,reyna4issues}. We will initially focus on the CPSC datset and implement a model which can match the results of the competition winner before moving on to measuring pre-processing effects. We use the Chapman-Shaoxing dataset~\cite{zheng202012} as our secondary dataset to verify our findings. The breakdown of these datasets and their label counts are given in Tables~\ref{tab:CPSC} and ~\ref{tab:ChapmanShaoxing}.
+
+
+% do i cite this? results are bad but more recent: https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-021-01546-2
+\textbf{CPSC} is an open access  dataset released in 2018 as part a multi-label ECG classification competition~\cite{liu2018open}. ECG signal duration in this dataset is between 6 and 60 seconds, with an average duration of 15.79 seconds. The the 12 leads were recorded at the frequency of 500 Hz, and each ECG can have up to 9 labels. The entries to this competition trained on 6877 ECG recordings and were evaluated on a hidden test set of 2954 ECGs. Here we only use 10 seconds of data from each ECG. ECGs shorter than this length are padded with zeros (on the left side), such that we can represent each ECG as a [12x10000] array. To ensure our approach is competitive with the state of the art, we compare our results to the competition winner's reported F1 measurements after a 10 fold cross-validation on the training set where 80\% of the data was used for training and 10\% for validation, and 10\% for testing~\cite{chen2020detection}. Chen~\textit{et al.} (competition winners), reported the results for their best model, as well as an ensemble model of 130 models with various hyper-parameters. \textbf{Chapman-Shaoxing} is another open access dataset which has not been subject to many benchmarks. This dataset contains 12-lead ECGs of 10,646 patients with a 500 Hz sampling rate and 54 labels~\cite{zheng202012}. This means that all ECGs can be represented as [12x5000] arrays.  
+% We also compare our results to the more recent work by Strodthoff~\textit{et al.}~\cite{Strodthoff2021} who also used a 8/1/1 split for training, validation, and testing but only reported the average AUCs for their models. 
+
+% \subsection{Chapman-Shaoxing Dataset}
+% 337 ECGs have no labels. 3334 ECGs have more than 1 label.
+% \begin{table}[htpb]
+% \parbox{.45\paperwidth}{
+% \centering
+% \begin{tabular}{|c|c|}
+%  \hline
+% Label & Count \\
+%  \hline
+% right bundle branch block    &  1857 \\
+% ventricular ectopics         &   700 \\
+% atrial fibrillation          &  1221 \\
+% 1st degree av block          &   722 \\
+% premature atrial contraction &   616 \\
+% sinus rhythm                 &   918 \\
+% st depression                &   869 \\
+%  \hline
+% \textbf{Total} & \textbf{6903}\\
+% \hline
+% \end{tabular}
+% % (394, 368, 6903)
+% \caption {\textbf{CPSC2018} dataset of 6877 ECGs. 368 ECGs have no labels. 394 ECGs have more than 1 label.\\}
+% \label{tab:CPSC}
+% }
+% % \end{table}
+
+% % \begin{table}[htb]
+% \parbox{.45\paperwidth}{
+% \centering
+% \begin{tabular}{|c|c|}
+%  \hline
+% Label & Count \\
+%  \hline
+% left ventricular high voltage &  1295 \\
+% atrial fibrillation           &  1780 \\
+% t wave abnormal               &  1876 \\
+% sinus bradycardia             &  3889 \\
+% supraventricular tachycardia  &   587 \\
+% sinus rhythm                  &  1826 \\
+% sinus tachycardia             &  1568 \\
+% nonspecific st t abnormality  &  1158 \\
+%  \hline
+% \textbf{Total} & \textbf{13979}\\
+% \hline
+
+
+% \end{tabular}
+
+% \caption {\textbf{Chapman-Shaoxing} dataset of 10247 ECGs. We drop labels that appear in less than 5\% of the ECGs. 337 ECGs have no labels. 3334 ECGs have more than 1 label.}
+% \label{tab:ChapmanShaoxing}
+% }
+
+% \end{table}
+
+\begin{table}
+\centering
+\begin{minipage}{.47\linewidth}
 \centering
 \begin{tabular}{|c|c|}
  \hline
@@ -60,16 +130,22 @@ atrial fibrillation          &  1221 \\
 premature atrial contraction &   616 \\
 sinus rhythm                 &   918 \\
 st depression                &   869 \\
+                            &     \\
  \hline
 \textbf{Total} & \textbf{6903}\\
 \hline
 \end{tabular}
 % (394, 368, 6903)
-\caption {\textbf{CPSC2018} dataset of 6877 ECGs. 368 ECGs have no labels. 394 ECGs have more than 1 label.\\}
+\caption {\textbf{CPSC2018} dataset of 6877 ECGs.}
+%  368 ECGs have no labels. 394 ECGs have more than 1 label.
 \label{tab:CPSC}
-}
-
-\parbox{.45\linewidth}{
+\end{minipage}
+% \end{table}
+\hfill
+\hspace{0.2 in}
+% \begin{table}[htb]
+\begin{minipage}{.47\linewidth}
+\centering
 \begin{tabular}{|c|c|}
  \hline
 Label & Count \\
@@ -89,19 +165,17 @@ nonspecific st t abnormality  &  1158 \\
 
 \end{tabular}
 
-\caption {\textbf{Chapman-Shaoxing} dataset of 10247 ECGs. We drop labels that appear in less than 5\% of the ECGs. 337 ECGs have no labels. 3334 ECGs have more than 1 label.}
+\caption {\textbf{Chapman-Shaoxing} dataset of 10247 ECGs. In his table we only show 8 of the most common labels, out of the 54. }
 \label{tab:ChapmanShaoxing}
-}
+\end{minipage}
 
 \end{table}
 
-\section{Datasets}
-\label{datasets}
-We conduct our experiments on two datasets, the~\textbf{CPSC} dataset~\cite{liu2018open} and the \textbf{Chapman-Shaoxing} dataset~\cite{zheng202012}. Both of these datasets have been released as part of the 8 datasets of labeled 12 lead ECGs provided by the Physionet\-2021 challenge~\cite{reyna2021will,reyna4issues}. We will initially focus on the CPSC datset, released as part of the CPSC-2018 competition~\cite{liu2018open} and implement a model which can match the results of the competition winner before moving on to measuring pre-processing effects. We use the Chapman-Shaoxing dataset~\cite{zheng202012} as our secondary dataset to verify our findings. The breakdown of these datasets and their label counts is given in Tables~\ref{tab:CPSC} and ~\ref{tab:ChapmanShaoxing}.
-
 \section{Models}
 \label{sec:models}
-We use two models with proven results in state of the art time-series classification tasks: the Inception-Time Network, which is the 1-dimensional application of the Inception-Network~\cite{szegedy2017inception,ismail2020inceptiontime} and MiniRocket, a quick and mostly deterministic feature extractor for time-series~\cite{dempster2021minirocket}. A recent survey of time-series classification methods by Ruiz~\textit{et al.} highlights both of these models as excellent performers in various multi-variable time-series classification benchmarks. In the context of ECG classification, Inception-Time has achieved state of the art performance ECG classification tasks~\cite{Strodthoff2021}. 
+We use two models with proven results in state of the art time-series classification tasks: the Inception-Time Network, which is the 1-dimensional application of the Inception-Network~\cite{szegedy2017inception,ismail2020inceptiontime} and MiniRocket, a quick and mostly deterministic feature extractor for time-series~\cite{dempster2021minirocket}. A recent survey of time-series classification methods by Ruiz~\textit{et al.} highlights both of these models as excellent performers in various multi-variable time-series classification benchmarks. In the context of ECG classification, Inception-Time has achieved state of the art performance ECG classification tasks~\cite{Strodthoff2021}.
+
+
 
 
 % \begin{table}[tpb]
@@ -119,11 +193,23 @@ We use two models with proven results in state of the art time-series classifica
 % \caption{Top performing teams' approaches to ECG pre-processing and augmentation. Subset of the larger survey conducted by Hong~\textit{et al.}~\cite{hong2022practical}}
 % \label{tab:hong_top5}
 % \end{table}
-
+\begin{table}[tb]
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+Rank & Group                                          & Scaling                   & Normalize            & BandPass                  & Shifting                  \\ \hline
+1    & A Wide \& Deep Transformer                     &                           & \checkmark & \checkmark &                           \\ \hline
+2    & Adaptive lead weighted ResNet                  & \checkmark & \checkmark &                           &                           \\ \hline
+3    & Classification of Cardiac Abnormalities        &                           &                           &                           &                           \\ \hline
+4    & Combining Scatter Transform and DL             &                           & \checkmark &                           & \checkmark \\ \hline
+5    & Adversarial Multi-Source Domain Generalization &                           &                           & \checkmark &                           \\ \hline
+\end{tabular}
+\caption{Top 5 teams and pre-processing functions used. Some functions are not depicted here but will be tested in future work.}
+\label{tab:top5}
+\end{table}
 \section{Pre-Processing And Augmentation}
 \label{sec:processing}
 
-A recent work by Hong~\textit{et al.} highlights the implementation decisions made by the successful submissions to the Physionet2020 ECG classification challenge~\cite{hong2022practical}. These decisions include length of input data, pre-processing and augmentation steps, model architectures, data-imbalance solutions, etc. From this survey, we see that there is a diverse set of decisions made by top performing teams in pre-processing and augmentation of ECG data before machine learning algorithms were applied. We higlight a subset of the decisions made by the top 5 performing teams in Table~\ref{tab:hong_top5}.  This survey does not narrow the range of viable options in pre-processing or augmentation since different teams used different architectures amongst other experiment inconsistencies. 
+A recent work by Hong~\textit{et al.} highlights the implementation decisions made by the successful submissions to the Physionet2020 ECG classification challenge~\cite{hong2022practical}. These decisions include length of input data, pre-processing and augmentation steps, model architectures, data-imbalance solutions, etc. From this survey, we see that there is a diverse set of decisions made by top performing teams in pre-processing and augmentation of ECG data before machine learning algorithms were applied. We higlight a subset of the decisions made by the top 5 performing teams in Table~\ref{tab:top5}.  This survey does not narrow the range of viable options in pre-processing or augmentation since different teams used different architectures amongst other experiment inconsistencies. 
 
 In this work we implement some of the most common approaches to augmentation~\footnote{Due to time limitations, we excluded functions such noise-addition, drift, de-noising, etc. from our final analysis.} and pre-processing as highlighted by Hong~\textit{et al.}~\cite{hong2022practical} and use ablation to observe their effects on different models and datasets. By doing so we'll be able to make more general statements about the effects of these methods on ECG signal classification and whether future researchers may or may not want to incorporate them into their own pipelines. 
 
@@ -164,7 +250,7 @@ The functions we focus on here are \textbf{scaling}, \textbf{normalization}, \te
 The Scaling function uses upsampling or downsampling to resize an ECG. Here we are only interested in downsampling, as upsampling cannot provide extra information and likely would only increase computation costs. With downsampling, the dimensionality of the data is reduced, leading to faster training times, smaller models, and possibly prevent over-fitting. However, at a lower resolution, we may lose data that is crucial for detection of some diseases. We use the TorchAudio library which enables the re-sampling of time-series using GPU~\cite{yang2021torchaudio}. This effect of this process can be seen in Figure~\ref{fig:sc}.
 
 \subsection{Normalization}
-We normalize the data by dividing each lead by the maximum value in the \textit{entire} ECG. Normalization has been show to produce better results in image classification~\textbf{>>cite<<}. This effect of this process can be seen in Figure~\ref{fig:sc_n}.
+We normalize the data by dividing each lead by the maximum value in the \textit{entire} ECG. Normalization of input values has been show to produce better results in image and time-series classification~\cite{bhanja2018impact}. This effect of this process on ECGs can be seen in Figure~\ref{fig:sc_n}.
 \subsection{BandPass Filtering}
         % from zhang et al We recommended a low-frequency flter to cut of 0.67Hz or below with zero phase distortion, and ahigh-frequency flter with 50Hz cutof frequency. Using the raw ECG signal is also an option for classifcation scheme.
 
@@ -207,19 +293,69 @@ There are 4 possible combinations of models and datasets (we have 2 datsets and 
 
 Using Tesla V100 GPUs, each epoch can take somewhere between 30 seconds to 1 minute. The Raw inception model on CPSC data required around 20 GBs of Vram, but models working with scaled data took around 10 GBs. Minirocket were far smaller and typically required less than 5GBs of Vram. This type of experimentation is costly, time consuming, and not possible without access to several high-performing GPUs. The high computational costs may be a primary reason why such surveys on time-series data are not done often.
 
-\section{CPSC DataSet}
-% do i cite this? results are bad but more recent: https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-021-01546-2
-The CPSC is an open access  released in 2018 as part a multi-label ECG classification competition~\cite{liu2018open}. ECG signal duration in this dataset is between 6 and 60 seconds, with an average duration of 15.79 seconds. The data the 12 leads were recorded at the frequency of 500 Hz. The entries to this competition trained on 6877 ECG recordings and were evaluated on a hidden test set of 2954 ECGs. To ensure our approach is competitive with the state of the art, we compare our results to the competition winner's reported F1 measurements after a 10 fold cross-validation on the training set where 80\% of the data was used for training and 10\% for validation, and 10\% for testing~\cite{chen2020detection}. Chen~\textit{et al.} reported the results for their best model, as well as an ensemble model of 130 models with various hyper-parameters.
-We also compare our results to the more recent work by Strodthoff~\textit{et al.}~\cite{Strodthoff2021} who also used a 8/1/1 split for training, validation, and testing but only reported the average AUCs for their models. 
 
-\subsection{InceptionTime}
-
-\begin{figure}[!htbp]
+\section{Experiment Results}
+\begin{figure}[!tbp]
   \makebox[\textwidth]{
     \includegraphics[width=\paperwidth]{images/inception_cpsc.pdf}
   }
   \caption{inception CPSC}\label{fig:inception_cpsc}
 \end{figure}
+
+
+\begin{figure}[!tbp]
+  \makebox[\textwidth]{
+    \includegraphics[width=\paperwidth]{images/mini_cpsc.pdf}
+  }
+  \caption{Mini CPSC}\label{fig:mini_cpsc}
+\end{figure}
+
+
+We use strip plots to visualize the results of the 4 experiments. Figures~\ref{fig:inception_cpsc} and~\ref{fig:mini_cpsc} show the results for experiments \textbf{Inception-CPSC} and \textbf{MiniRocket-CPSC}. In these plots, the results of the 10-fold cross validations are shown for all 9 labels in the dataset, along with the micro and macro averages. For each label, we can see how the F1 values achieved on the test set change as more processing was done to the dataset.
+
+For \textbf{Inception-CPSC}, we see that more pre-processing did not necessarily result in better results. However, scaling (or downsampling) the data from 500Hz to 250Hz did not cause a decrease in the micro or macro F1 measures, while allowing for smaller models and faster computation times. 
+
+For \textbf{MiniRocket-CPSC}, we see a linear increase in average F1 measures as more pre-processing functions were applied to the data. We hypothesize that this is due to Inception being an adaptable deep learning model which can learn to pre-process the data itself, while the MiniRocket model is a deterministic feature extractor combined with a small fully convolutional net, and not capable of approximating our pro-processing functions. 
+
+
+\begin{figure}[!tbp]
+  \makebox[\textwidth]{
+    \includegraphics[width=\paperwidth]{images/inception_chapman.pdf}
+  }
+  \caption{Inception Chapman}\label{fig:inception_chapman}
+\end{figure}
+
+
+\begin{figure}[!tbp]
+  \makebox[\textwidth]{
+    \includegraphics[width=\paperwidth]{images/minirocket_chapman.pdf}
+  }
+  \caption{Mini Chapman}\label{fig:mini_chapman}
+\end{figure}
+
+
+Figures~\ref{fig:inception_chapman} and~\ref{fig:mini_chapman} show the results for experiments \textbf{Inception-Chapman} and \textbf{MiniRocket-Chapman}. In these figures we only show the results for the 8 most common labels, but the average values include the F1 values for all 54 labels. Three observations are notable here: 
+
+\begin{enumerate*}
+  \item  Like the CPSC dataset, the Inception outperformed the MiniRocket model, however results are much worse on average even for shared labels such as~\textbf{AF}. This could be due to many of the labels having very few representatives. Another possibility which warrants further investigation is  multi-label models being at a disadvantage due to multi-tasking. 
+  \item Neither MiniRocket nor Inception benefited from the pre-processing functions. 
+  \item Much like the CPSC experiments, the scaling function was not detrimnetal to the results, while reducing computation costs both in storage and speed. 
+\end{enumerate*}
+
+
+\section{Conclusion and Future Work}
+We tested two diffrent state of the art time-series classifiers and 2 different datasets of ECGs, and we do not find strong evidence for 4 of the most common time-series augmentation methods being beneficial or detrimental for multi-label ECG classification tasks.  However, we see that we can reduce the sampling rate of ECGs from the usual 500Hz to 250Hz without a noticeable decrease in classification accuracy for most labels. This is interesting as it allows for much faster computation times and much smaller models for training. Yet scaling to such a frequency rate is not often done by many recent works~\cite{hong2022practical}.
+The work presented here can be improved in multiple ways, in the near future we will explore the following methods: 
+\begin{enumerate}
+\item Apply methodology to more datasets and models, in order to make more generalizable conclusions
+\item Due to time constrains, we left out a few common pre-processing methods. We will add these to our experiments for the more complete version of this report. 
+\item Labels require different types of pre-processing, therefore it may be best to focus on single label classifications rather than multi-label, to make results more understandable. Furthermore, it would be interesting to see if multi-label models perform as well as multiple single-label models. 
+\end{enumerate}
+\printbibliography
+
+\end{document}
+
+
 
 % \begin{table}[tpb]
 % \centering
@@ -247,32 +383,3 @@ We also compare our results to the more recent work by Strodthoff~\textit{et al.
 % \caption{Median of 10 fold cross-validation for inception model on the CPSC dataset}
 % \label{tab:inception_CPSC}
 % \end{table}
-\subsection{MiniRocket}
-\begin{figure}[htbp]
-  \makebox[\textwidth]{
-    \includegraphics[width=\paperwidth]{images/mini_cpsc.pdf}
-  }
-  \caption{Mini CPSC}\label{fig:mini_cpsc}
-\end{figure}
-\section{Chapman-Shaoxing DataSet}
-
-\subsection{InceptionTime}
-\begin{figure}[htbp]
-  \makebox[\textwidth]{
-    \includegraphics[width=\paperwidth]{images/inception_chapman.pdf}
-    
-  }
-  \caption{Inception Chapman}\label{fig:inception_chapman}
-\end{figure}
-\subsection{MiniRocket}
-\begin{figure}[htbp]
-  \makebox[\textwidth]{
-    \includegraphics[width=\paperwidth]{images/minirocket_chapman.pdf}
-    
-  }
-  \caption{Mini Chapman}\label{fig:mini_chapman}
-\end{figure}
-\section{Conclusion}
-\printbibliography
-
-\end{document}
